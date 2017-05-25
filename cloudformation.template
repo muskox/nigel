@@ -1,0 +1,82 @@
+{
+  "AWSTemplateFormatVersion" : "2010-09-09",
+  "Description" : "Cloudformation - Nigel",
+  "Parameters" : {
+   "InstanceTypeParam" : {
+     "Type" : "String",
+     "Default" : "t2.small",
+     "AllowedValues" : ["t2.small"]
+   }
+  },
+  "Resources" : {
+    "WebServerNode1" : {
+      "Type" : "AWS::EC2::Instance",
+      "Metadata": {
+        "Comment": "Fatjar configuration",
+        "AWS::CloudFormation::Init": {
+          "configSets" : {
+            "properOrder" : [ "configNvm"]
+          },
+          "configNvm" : {
+            "commands" : {
+              "deep_sec1" : {
+                "command" : "cd /root &&curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.32.0/install.sh | bash"
+              },
+              "deep_sec2" : {
+                "command" : "cd /root && .nvm/nvm.sh"
+              },
+              "deep_sec3" : {
+                "command" : "nvm install --lts"
+              }
+            }
+          }
+        }
+      },
+      "Properties" : {
+        "ImageId" : "ami-080e371f",
+        "AvailabilityZone" : "us-east-1a",
+        "SubnetId": "ami-c58c1dd3",
+        "InstanceType" : { "Ref" : "InstanceTypeParam" },
+        "KeyName" : "muskox",
+        "DisableApiTermination": "false",
+        "Tags" : [
+             {
+                 "Key" : "ApplicationStackId", "Value" : { "Ref" : "AWS::StackId"},
+             },
+             {
+                 "Key" : "Name", "Value" : { "Fn::Join" : [ "", [ "Nigel  via CF ", {"Ref":"AWS::StackId"} ] ] }
+             }
+        ],
+        "UserData": {
+          "Fn::Base64": {
+            "Fn::Join": [
+              "",
+              [
+              "#!/bin/bash -xe\n",
+              "yum -y update\n",
+              "# Get the latest CloudFormation package\n",
+              "yum update -y aws-cfn-bootstrap\n",
+              "# Start cfn-init\n",
+              "/opt/aws/bin/cfn-init -c properOrder -s ", { "Ref": "AWS::StackId" }, " -r WebServerNode1 ", " --region ", { "Ref": "AWS::Region" },
+              " || error_exit 'Failed to run cfn-init'\n",
+              "# Start up the cfn-hup daemon to listen for changes to the EC2 instance metadata\n",
+              "/opt/aws/bin/cfn-hup || error_exit 'Failed to start cfn-hup'\n",
+              "# All done so signal success\n",
+              "/opt/aws/bin/cfn-signal -e $? ",
+              "         --stack ", { "Ref" : "AWS::StackName" },
+              "         --resource WebServerNode1 ",
+              "         --region ", { "Ref" : "AWS::Region" }, "\n"
+              ]
+            ]
+          }
+        }
+      }
+    }
+  },
+  "Outputs" : {
+    "Node1IP" : {
+      "Description" : "IP Address",
+      "Value" :  { "Fn::GetAtt" : [ "WebServerNode1" , "PrivateIp" ] }
+    }
+  }
+}
