@@ -19,13 +19,13 @@
           },
           "configNvm" : {
             "commands" : {
-              "deep_sec1" : {
+              "nvm1" : {
                 "command" : "cd /root &&curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.32.0/install.sh | bash"
               },
-              "deep_sec2" : {
+              "nvm2" : {
                 "command" : "cd /root && .nvm/nvm.sh"
               },
-              "deep_sec3" : {
+              "nvm3" : {
                 "command" : "nvm install --lts"
               }
             }
@@ -35,7 +35,7 @@
       "Properties" : {
         "ImageId" : "ami-080e371f",
         "AvailabilityZone" : "us-east-1a",
-        "SubnetId": "ami-c58c1dd3",
+        "SubnetId": "subnet-4d41a660",
         "InstanceType" : { "Ref" : "InstanceTypeParam" },
         "KeyName" : "muskox",
         "DisableApiTermination": "false",
