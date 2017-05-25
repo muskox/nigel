@@ -34,7 +34,6 @@
       },
       "Properties" : {
         "ImageId" : "ami-080e371f",
-        "AvailabilityZone" : "us-east-1a",
         "SubnetId": "subnet-4d41a660",
         "InstanceType" : { "Ref" : "InstanceTypeParam" },
         "KeyName" : "muskox",
